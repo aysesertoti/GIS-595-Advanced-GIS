@@ -207,6 +207,19 @@
             margin-top: 0;
         }
         
+        .cv-explanation {
+            background-color: #fce4ec;
+            border-left: 4px solid #e91e63;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+        
+        .cv-explanation h4 {
+            color: #c2185b;
+            margin-top: 0;
+        }
+        
         .buffer-explanation {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -269,6 +282,17 @@
             border-radius: 3px;
             font-family: 'Courier New', monospace;
             color: #d32f2f;
+            font-size: 0.9em;
+        }
+        
+        .formula {
+            background-color: #f5f5f5;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+            text-align: center;
+            border: 1px solid #ddd;
         }
         
         @media (max-width: 768px) {
@@ -301,9 +325,9 @@
     </header>
     
     <div class="credit">
-        <p><strong>Author:</strong> Ayse Sert Oti </p>
-        <p><strong>Course:</strong> Command-Line GIS</p>
-        <p><strong>Date:</strong> December 2025</p>
+        <p><strong>Author:</strong> [Your Name]</p>
+        <p><strong>Course:</strong> 34:970:595 Command-Line GIS</p>
+        <p><strong>Date:</strong> December 2024</p>
     </div>
     
     <div class="container">
@@ -328,6 +352,7 @@
                     <li>What percentage of each census tract falls within 5, 10, or 20-minute walking distance of a park?</li>
                     <li>Is there a correlation between household income and park accessibility?</li>
                     <li>Which census tracts have the greatest need for additional green space infrastructure or improved pedestrian access?</li>
+                    <li>How does data quality (measured by coefficient of variation) affect our confidence in income-based findings?</li>
                 </ul>
             </div>
         </section>
@@ -360,6 +385,20 @@
                 </div>
             </div>
             
+            <div class="cv-explanation">
+                <h4>Understanding Coefficient of Variation (CV) for Data Quality</h4>
+                <p>The American Community Survey estimates have margins of error (MOE) that reflect sampling uncertainty. To assess data quality, we calculate the <strong>Coefficient of Variation (CV)</strong> from the MOE:</p>
+                
+                <div class="formula">
+                    <strong>Step 1:</strong> SE = MOE / 1.645<br>
+                    <strong>Step 2:</strong> CV = (SE / Estimate) × 100
+                </div>
+                
+                <p style="margin-top: 1rem;"><strong>Interpretation:</strong> CV ≥ 40% indicates high statistical uncertainty, typically in tracts with small populations or high income variance. These tracts are flagged on the income map with red dashed outlines and CV value labels to warn readers about data reliability.</p>
+                
+                <p style="margin-top: 0.75rem;"><strong>Why this matters:</strong> Income estimates with high CV should be interpreted cautiously. When making policy decisions, areas with reliable data (low CV) provide stronger evidence for targeted interventions.</p>
+            </div>
+            
             <div class="methodology">
                 <h4>Technical Approach</h4>
                 <p><strong>Step 1: Park Access Point Generation</strong></p>
@@ -382,19 +421,26 @@
                     <li>Calculated percentage of tract area within each walking distance threshold</li>
                     <li>Generated binary indicators (tract within/outside buffer zone)</li>
                 </ul>
+                
+                <p style="margin-top: 1rem;"><strong>Step 4: Data Quality Assessment</strong></p>
+                <ul>
+                    <li>Calculated CV from ACS margins of error to identify unreliable estimates</li>
+                    <li>Flagged tracts with CV ≥ 40% for appropriate symbolization</li>
+                    <li>Displayed CV values on static maps for transparency</li>
+                </ul>
             </div>
         </section>
         
         <!-- Static Maps Section -->
         <section>
             <h2>Static Map Analysis</h2>
-            <p>The following static maps provide a curated overview of the spatial patterns in Newark. These maps were created using GeoPandas and Matplotlib, incorporating census tract boundaries, park polygons, network buffers, and American Community Survey data.</p>
+            <p>The following static maps provide a curated overview of the spatial patterns in Newark. These maps were created using GeoPandas and Matplotlib, incorporating census tract boundaries, park polygons, network buffers, and American Community Survey data with data quality indicators.</p>
             
             <div class="maps-grid">
                 <!-- Map 1 -->
                 <div class="map-container">
-                    <h3>Map 1: Income and Park Accessibility Buffers</h3>
-                    <img src="map1_income_park_buffers.png" alt="Median Household Income with Park Buffers">
+                    <h3>Map 1: Income, Data Quality, and Park Accessibility Buffers</h3>
+                    <img src="output/map1_income_park_buffers.png" alt="Median Household Income with Park Buffers and CV Flags">
                     <div class="map-description">
                         <p><strong>Description:</strong> This map displays median household income (from ACS 2020 5-Year Estimates) at the census tract level, with park locations and walking-distance buffers overlaid. The color scheme ranges from red (lower income) to yellow to green (higher income).</p>
                         
@@ -404,17 +450,19 @@
                             <li><strong>Yellow stars:</strong> Park access points (centroids used for buffer generation)</li>
                             <li><strong>Green buffer zones:</strong> Walking distance service areas (lightest = 1600m, medium = 800m, darkest = 400m)</li>
                             <li><strong>Gray areas:</strong> Census tracts with missing income data</li>
-                            <li><strong>Red dashed outlines:</strong> Tracts with coefficient of variation (CV) ≥ 40 (statistical uncertainty)</li>
+                            <li><strong>Red dashed outlines with CV labels:</strong> Tracts with coefficient of variation (CV) ≥ 40 indicating high statistical uncertainty (e.g., "CV: 45")</li>
                         </ul>
                         
-                        <p style="margin-top: 0.75rem;"><strong>Key Observations:</strong> The map reveals income disparities across Newark's neighborhoods and shows how walking-distance park access relates to these economic patterns. Areas with lower income but limited buffer coverage may indicate environmental justice concerns.</p>
+                        <p style="margin-top: 0.75rem;"><strong>Data Quality Note:</strong> The CV flags help identify areas where income estimates should be interpreted with caution. High CV values typically occur in census tracts with small populations or high income variability. When evaluating environmental justice concerns, focus on areas with reliable data (no CV flag) or corroborate findings with other data sources.</p>
+                        
+                        <p style="margin-top: 0.75rem;"><strong>Key Observations:</strong> The map reveals income disparities across Newark's neighborhoods and shows how walking-distance park access relates to these economic patterns. Areas with lower income but limited buffer coverage may indicate environmental justice concerns, though findings in high-CV tracts should be interpreted cautiously.</p>
                     </div>
                 </div>
                 
                 <!-- Map 2 -->
                 <div class="map-container">
                     <h3>Map 2: Park Accessibility Coverage</h3>
-                    <img src="map2_park_accessibility.png" alt="Park Accessibility Coverage Map">
+                    <img src="output/map2_park_accessibility.png" alt="Park Accessibility Coverage Map">
                     <div class="map-description">
                         <p><strong>Description:</strong> This map shows the percentage of each census tract's area that falls within a 400-meter (5-minute) walking distance of a park access point. This is the most stringent accessibility measure, representing ideal access for daily use.</p>
                         
@@ -427,7 +475,7 @@
                         
                         <p style="margin-top: 0.75rem;"><strong>Key Observations:</strong> This metric was calculated through spatial intersection of the 400m buffer service area with census tract boundaries. Tracts with low percentage coverage, especially when combined with high population density or low income, represent priority areas for park development or improved pedestrian infrastructure.</p>
                         
-                        <p style="margin-top: 0.75rem;"><strong>Geoprocessing Used:</strong> This map demonstrates results from spatial join operations, buffer analysis, intersection calculations, and area-based normalization—all key GIS techniques required for the final project.</p>
+                        <p style="margin-top: 0.75rem;"><strong>Geoprocessing Used:</strong> This map demonstrates results from spatial join operations, buffer analysis, dissolve operations, intersection calculations, and area-based normalization—all key GIS techniques required for the final project.</p>
                     </div>
                 </div>
             </div>
@@ -450,11 +498,12 @@
                     <li><strong>Click</strong> on census tracts for detailed demographic and accessibility metrics</li>
                     <li>Toggle between different <strong>basemaps</strong> for better visibility</li>
                     <li>Explore the <strong>walking distance buffers</strong> to see service areas</li>
+                    <li>View <strong>park access points</strong> (yellow markers) showing centroid locations used for buffer generation</li>
                 </ul>
             </div>
             
             <div class="interactive-map">
-                <iframe src="interactive_map.html" title="Interactive Green Space Access Map"></iframe>
+                <iframe src="output/interactive_map.html" title="Interactive Green Space Access Map"></iframe>
             </div>
             
             <div style="margin-top: 1.5rem;">
@@ -469,6 +518,10 @@
                     <li><strong>Detailed Popups:</strong> Click any tract to see income, population, density, park area, distance to nearest park, and walking distance coverage percentages</li>
                     <li><strong>Layer Control:</strong> Full control over layer visibility for custom analysis</li>
                 </ul>
+            </div>
+            
+            <div class="note">
+                <strong>Note:</strong> The interactive map does not display CV flags to maintain visual clarity. Refer to Map 1 (static map) for data quality assessment of income estimates.
             </div>
         </section>
         
@@ -488,8 +541,9 @@
                         <ul style="margin-top: 0.5rem;">
                             <li>Clipped to Newark municipal boundaries using spatial intersection (<code>gpd.clip()</code>)</li>
                             <li>Reprojected to NAD83 NJ State Plane (EPSG:32118) for accurate distance calculations</li>
+                            <li>Calculated park areas in square meters</li>
                             <li>Generated centroid access points for network buffer analysis</li>
-                            <li>Classified parks as "large" (&gt;5 hectares) or "small" based on area calculations</li>
+                            <li>Classified parks as "large" (&gt;50,000 sq m / 5 hectares) or "small" based on area calculations</li>
                         </ul>
                     </li>
                     <li><strong>Data quality issues:</strong> None significant; dataset is well-maintained and regularly updated by state GIS office</li>
@@ -505,7 +559,8 @@
                     <li><strong>Original format?</strong> CSV (comma-separated values) tabular data</li>
                     <li><strong>Variables used:</strong>
                         <ul style="margin-top: 0.5rem;">
-                            <li><code>B19013_001E</code> - Median Household Income</li>
+                            <li><code>B19013_001E</code> - Median Household Income (Estimate)</li>
+                            <li><code>B19013_001M</code> - Median Household Income (Margin of Error)</li>
                             <li><code>B01003_001E</code> - Total Population</li>
                             <li><code>B25014_005E, B25014_006E, B25014_007E</code> - Housing unit crowding indicators (occupied units with 1.01+ occupants per room)</li>
                         </ul>
@@ -516,13 +571,21 @@
                             <li>Cleaned GEOID format (removed "1400000US" prefix)</li>
                             <li>Calculated derived variables: population density (population ÷ tract area), crowding index (sum of three crowding variables)</li>
                             <li>Converted Census missing data codes (-666666666) to NaN for proper handling in analysis</li>
+                            <li><strong>Computed Coefficient of Variation (CV)</strong> from MOE to assess data quality:
+                                <div class="formula" style="text-align: left; margin-top: 0.5rem;">
+                                    SE = MOE / 1.645<br>
+                                    CV = (SE / Estimate) × 100
+                                </div>
+                            </li>
+                            <li>Flagged tracts with CV ≥ 40% for visualization</li>
                         </ul>
                     </li>
                     <li><strong>Data quality issues addressed:</strong>
                         <ul style="margin-top: 0.5rem;">
                             <li><strong>Missing data:</strong> Tracts with suppressed data (small populations or high margins of error) converted to NaN and symbolized in light gray on maps</li>
-                            <li><strong>High coefficient of variation:</strong> Tracts where CV ≥ 40 for median income flagged with red dashed outlines to indicate statistical uncertainty</li>
+                            <li><strong>High coefficient of variation:</strong> Tracts where CV ≥ 40 for median income flagged with red dashed outlines and labeled with CV values on static maps to indicate statistical uncertainty. High CV typically indicates small sample sizes or high income variance.</li>
                             <li><strong>Zero population tracts:</strong> Industrial or uninhabited tracts excluded from per-capita calculations to avoid division by zero errors</li>
+                            <li><strong>MOE transparency:</strong> CV calculation makes measurement uncertainty explicit, allowing users to assess data reliability for policy decisions</li>
                         </ul>
                     </li>
                 </ul>
@@ -589,6 +652,9 @@
                 
                 <p style="margin-top: 1rem;"><strong>9. Area Calculation</strong></p>
                 <p>Calculated areas of tracts and parks in square meters/kilometers using <code>.area</code> property in projected coordinate system.</p>
+                
+                <p style="margin-top: 1rem;"><strong>10. Statistical Data Quality Assessment</strong></p>
+                <p>Computed coefficient of variation from ACS margins of error to identify unreliable estimates and appropriately flag them on maps.</p>
             </div>
             
             <div class="highlight-box">
@@ -606,7 +672,7 @@
         <!-- Findings Section -->
         <section>
             <h2>Findings and Implications</h2>
-            <p>This network-based geospatial analysis reveals important patterns in the relationship between socioeconomic factors and green space accessibility in Newark. The combination of walking-distance buffers, coverage percentage calculations, and demographic data provides a nuanced understanding of environmental justice issues related to park access.</p>
+            <p>This network-based geospatial analysis reveals important patterns in the relationship between socioeconomic factors and green space accessibility in Newark. The combination of walking-distance buffers, coverage percentage calculations, demographic data, and data quality assessment provides a nuanced understanding of environmental justice issues related to park access.</p>
             
             <div class="key-findings" style="margin-top: 1.5rem;">
                 <h3>Key Takeaways</h3>
@@ -615,7 +681,8 @@
                     <li><strong>Service area coverage varies significantly:</strong> The percentage of tract area within 400m of parks ranges widely, revealing spatial inequities in ideal park access</li>
                     <li><strong>Multiple distance thresholds tell different stories:</strong> While many areas may be within 20-minute walking distance (1600m), far fewer enjoy 5-minute access (400m) ideal for daily use</li>
                     <li><strong>Centroid-based analysis improves accuracy:</strong> Using park centroids as access points for large parks prevents overestimating accessibility for edge residents</li>
-                    <li><strong>Environmental justice implications:</strong> Overlaying income data with accessibility buffers can identify disadvantaged neighborhoods with limited park access</li>
+                    <li><strong>Data quality matters for policy:</strong> Coefficient of variation flags help identify areas where income estimates are reliable versus uncertain, informing evidence-based decision-making</li>
+                    <li><strong>Environmental justice implications:</strong> Overlaying income data with accessibility buffers can identify disadvantaged neighborhoods with limited park access, though findings should be interpreted cautiously in high-CV areas</li>
                     <li><strong>Interactive mapping enables exploration:</strong> Stakeholders can investigate specific neighborhoods and identify priority areas for intervention</li>
                 </ul>
             </div>
@@ -627,10 +694,11 @@
                 <li><strong>Access gaps:</strong> Census tracts with 0% coverage within 400m buffers represent clear gaps in the park network, especially concerning if they also show high population density or low income</li>
                 <li><strong>Edge effects:</strong> Tracts at the municipal boundary may show lower apparent access if parks in adjacent municipalities aren't included in the analysis</li>
                 <li><strong>Large park challenges:</strong> Very large parks (forests, reservations) create extensive buffer zones, but actual accessibility depends on entry points, parking, and trail access</li>
+                <li><strong>Data reliability patterns:</strong> High-CV tracts often cluster in areas with newer development or more homogeneous populations, where ACS sample sizes may be smaller</li>
             </ul>
             
             <h3>Methodological Advantages</h3>
-            <p>This project demonstrates several advantages of network-based accessibility analysis over simpler methods:</p>
+            <p>This project demonstrates several advantages of network-based accessibility analysis with data quality assessment over simpler methods:</p>
             
             <div class="methodology">
                 <h4>Comparison of Approaches</h4>
@@ -639,15 +707,18 @@
                     <li>✗ Overestimates access to large parks</li>
                     <li>✗ Doesn't account for actual walking distances</li>
                     <li>✗ Binary measure (near/far) doesn't capture gradations</li>
+                    <li>✗ No data quality assessment</li>
                 </ul>
                 
-                <p style="margin-top: 1rem;"><strong>Centroid-based buffer analysis (this project):</strong></p>
+                <p style="margin-top: 1rem;"><strong>Centroid-based buffer analysis with CV flags (this project):</strong></p>
                 <ul>
                     <li>✓ Realistic access points for large parks</li>
                     <li>✓ Multiple distance thresholds (5, 10, 20 min walks)</li>
                     <li>✓ Percentage coverage shows partial accessibility</li>
                     <li>✓ Dissolved buffers create service areas</li>
                     <li>✓ Comparable across different park sizes</li>
+                    <li>✓ Data quality flags inform confidence in findings</li>
+                    <li>✓ Transparent about statistical uncertainty</li>
                 </ul>
                 
                 <p style="margin-top: 1rem;"><strong>Future enhancements could include:</strong></p>
@@ -656,17 +727,19 @@
                     <li>Accounting for topography and barriers (highways, rivers)</li>
                     <li>Multiple access points per park for very large parks</li>
                     <li>Weighting by park amenities and quality</li>
+                    <li>Incorporating additional demographic variables with CV assessment</li>
                 </ul>
             </div>
             
             <h3>Policy and Planning Implications</h3>
             <p>This analysis can inform evidence-based urban planning and environmental justice initiatives:</p>
             <ul>
-                <li><strong>Park development priorities:</strong> Tracts with low buffer coverage and high population density are candidates for new park development</li>
+                <li><strong>Park development priorities:</strong> Tracts with low buffer coverage and high population density are candidates for new park development, prioritizing areas with reliable income data (low CV)</li>
                 <li><strong>Infrastructure improvements:</strong> Areas just outside buffer zones might benefit from improved pedestrian infrastructure (sidewalks, crosswalks, traffic calming) to enhance access to existing parks</li>
-                <li><strong>Equity assessment:</strong> Comparing accessibility metrics across income levels can reveal environmental justice disparities</li>
+                <li><strong>Equity assessment:</strong> Comparing accessibility metrics across income levels can reveal environmental justice disparities, with data quality flags helping prioritize interventions in areas with reliable estimates</li>
                 <li><strong>Service standards:</strong> The 400m/5-minute walk threshold aligns with urban planning best practices for neighborhood parks</li>
-                <li><strong>Resource allocation:</strong> Understanding spatial gaps helps prioritize limited public investment in green space</li>
+                <li><strong>Resource allocation:</strong> Understanding spatial gaps and data confidence helps prioritize limited public investment in green space</li>
+                <li><strong>Targeted data collection:</strong> High-CV areas may benefit from supplementary data collection to improve estimate reliability</li>
             </ul>
             
             <div class="note">
@@ -681,9 +754,10 @@
                 <li><strong>Park quality not assessed:</strong> All parks are treated equally, but amenities, maintenance, and safety vary significantly.</li>
                 <li><strong>Single access points:</strong> Very large parks may have multiple entrances; using only centroids may underestimate access in some cases.</li>
                 <li><strong>Temporal considerations:</strong> Park hours, seasonal access, and safety perceptions that vary by time of day aren't captured.</li>
+                <li><strong>ACS limitations:</strong> 5-year estimates may mask recent demographic changes, and CV flags only address one dimension of data quality.</li>
             </ul>
             
-            <p style="margin-top: 1rem;">Future research could address these limitations by incorporating street network analysis, barrier modeling, park quality assessments, and community perception surveys.</p>
+            <p style="margin-top: 1rem;">Future research could address these limitations by incorporating street network analysis, barrier modeling, park quality assessments, community perception surveys, and more recent census data as it becomes available.</p>
         </section>
         
         <!-- Technical Notes Section -->
@@ -700,19 +774,28 @@
                     <li><strong>Matplotlib</strong> - Static map creation</li>
                     <li><strong>Folium</strong> - Interactive web map generation</li>
                     <li><strong>Shapely</strong> - Geometric operations</li>
-                    <li><strong>NumPy</strong> - Numerical computations</li>
+                    <li><strong>NumPy</strong> - Numerical computations (including CV calculations)</li>
                 </ul>
             </div>
             
             <div class="data-item">
                 <h4>Key Code Snippets</h4>
-                <p><strong>Creating park access points for large parks:</strong></p>
+                <p><strong>Calculating coefficient of variation from MOE:</strong></p>
+                <code style="display: block; padding: 0.5rem; background: #f5f5f5; white-space: pre-wrap;">
+tracts_clip["Income_SE"] = tracts_clip['median_income_moe'] / 1.645
+with np.errstate(divide="ignore", invalid="ignore"):
+    tracts_clip["income_cv"] = (tracts_clip["Income_SE"] / 
+                                 tracts_clip['median_income']) * 100
+    tracts_clip["income_cv_flag"] = tracts_clip['income_cv'] >= 40
+                </code>
+                
+                <p style="margin-top: 1rem;"><strong>Creating park access points for large parks:</strong></p>
                 <code style="display: block; padding: 0.5rem; background: #f5f5f5;">
 parks_access['is_large_park'] = parks_access['park_area_sqm'] > 50000<br>
 park_points_gdf['geometry'] = park_points_gdf.geometry.centroid
                 </code>
                 
-                <p style="margin-top: 1rem;"><strong>Generating buffers:</strong></p>
+                <p style="margin-top: 1rem;"><strong>Generating and dissolving buffers:</strong></p>
                 <code style="display: block; padding: 0.5rem; background: #f5f5f5;">
 park_buffers_short['geometry'] = park_points_gdf.geometry.buffer(400)<br>
 service_area_short = park_buffers_short.dissolve().geometry.iloc[0]
@@ -723,18 +806,39 @@ service_area_short = park_buffers_short.dissolve().geometry.iloc[0]
 intersection = service_area.intersection(tract.geometry)<br>
 pct_coverage = (intersection.area / tract.geometry.area) * 100
                 </code>
+                
+                <p style="margin-top: 1rem;"><strong>Adding CV annotations to map:</strong></p>
+                <code style="display: block; padding: 0.5rem; background: #f5f5f5; white-space: pre-wrap;">
+for idx, tract in high_cv.iterrows():
+    centroid = tract.geometry.centroid
+    cv_value = tract['income_cv']
+    ax.annotate(f'CV: {cv_value:.0f}', xy=(centroid.x, centroid.y),
+                fontsize=7, color='red', weight='bold',
+                bbox=dict(boxstyle='round,pad=0.3', 
+                         facecolor='white', edgecolor='red'))
+                </code>
             </div>
             
             <div class="note">
                 <strong>Coordinate Reference System:</strong> All distance-based calculations were performed in NAD83 / New Jersey State Plane (EPSG:32118), a projected coordinate system with meters as units. Data was then converted to WGS84 (EPSG:4326) for web mapping with Folium.
             </div>
+            
+            <div class="cv-explanation">
+                <h4>Important: Download Both Estimate and MOE from Census</h4>
+                <p>To replicate this analysis with CV calculations, you must download <strong>both</strong> columns from data.census.gov:</p>
+                <ul style="margin-top: 0.5rem;">
+                    <li><code>B19013_001E</code> - Median Household Income (Estimate)</li>
+                    <li><code>B19013_001M</code> - Median Household Income (Margin of Error)</li>
+                </ul>
+                <p style="margin-top: 0.75rem;">Without the MOE column, you cannot calculate CV for data quality assessment.</p>
+            </div>
         </section>
     </div>
     
     <footer>
-        <p>&copy; 2025 | Created for Command-Line GIS Final Project</p>
-        <p>Rutgers University | Ayse Sert Oti, Master of Public Informatics </p>
-        <p style="margin-top: 0.5rem; font-size: 0.9rem;">Analysis conducted using Python, GeoPandas, and Folium</p>
+        <p>&copy; 2024 | Created for 34:970:595 Command-Line GIS Final Project</p>
+        <p>Rutgers University | [Your Name]</p>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem;">Analysis conducted using Python, GeoPandas, and Folium with data quality assessment</p>
     </footer>
 </body>
 </html>
